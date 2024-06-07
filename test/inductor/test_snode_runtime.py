@@ -11,7 +11,7 @@ from torch._inductor.comm_analysis import estimate_nccl_collective_runtime
 from torch._inductor.compile_fx import compile_fx, compile_fx_inner
 from torch._inductor.test_case import TestCase as InductorTestCase
 from torch._inductor.utils import is_collective
-from torch.testing._internal.inductor_utils import HAS_CUDA
+from torch.testing._internal.inductor_utils import HAS_GPU, GPU_TYPE
 
 aten = torch.ops.aten
 c10d = torch.ops.c10d_functional
@@ -41,7 +41,7 @@ def calculate_runtime(f, *args) -> float:
     return ret
 
 
-DEVICE = "cuda"
+DEVICE = GPU_TYPE
 
 
 def T(*size, dtype=torch.float32, device=DEVICE, grad=False) -> torch.Tensor:
@@ -75,7 +75,7 @@ class UnsupportedTests(TestCase):
         inp = (T(10, 10),)
         self.assertZero(calculate_runtime(f, *inp))
 
-    def test_no_cuda(self):
+    def test_no_gpu(self):
         def f(a):
             return a
 
@@ -309,5 +309,5 @@ class TestCommAnalysis(TestCase):
 if __name__ == "__main__":
     from torch._inductor.test_case import run_tests
 
-    if HAS_CUDA:
+    if HAS_GPU:
         run_tests(needs="filelock")
